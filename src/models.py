@@ -47,6 +47,8 @@ class History:
             return self.records.iloc[-1]
         else:
             return pd.Series()
+    def is_empty(self) -> bool:
+        return self.records.empty
         
     def get_capital(self) -> pd.Series:
         return self.records["total_gain"].values
