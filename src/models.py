@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 import pandas as pd
-
-
+import matplotlib.pyplot as plt
+import numpy as np
 class Strategy(ABC):
     def __init__(self, name: str):
         self.name = name
@@ -97,7 +97,26 @@ class Result:
             "max_drawdown": (self.history["total_gain"].cummax() - self.history["total_gain"]).max() if self.total_rounds > 0 else 0.0
         }
         return stats
-    
+    def plot_gain_over_time(self):
+        df = self.history
+        if df.empty:
+            print("No data to plot.")
+            return
+
+        # Calculer le changement de capital à chaque round
+        change = df["total_gain"].diff().fillna(df["total_gain"].iloc[0])
+
+        # Couleur : vert si gain, rouge si perte ou perte nette
+        colors = np.where(change >= 0, "green", "red")
+
+        plt.figure(figsize=(10,6))
+        plt.scatter(range(len(df)), df["total_gain"], c=colors, s=20)
+        plt.plot(df["total_gain"], color='blue', alpha=0.3)  # ligne de tendance pour visibilité
+        plt.title("Total Gain Over Time")
+        plt.xlabel("Rounds")
+        plt.ylabel("Total Gain")
+        plt.grid(True)
+        plt.show()
 class Simulation:
 
     def __init__(self, strategies: list[Strategy], game: Game, max_bet: float = 1000.0, start_value: float = 100.0):
